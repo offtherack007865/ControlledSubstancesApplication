@@ -1,0 +1,70 @@
+﻿@model vmMonthlyReport
+<script>
+    function CallPrint(strid) {
+        var prtContent = document.getElementById(strid);
+        var WinPrint = window.open('', '', 'letf=100,top=100,width=600,height=600');
+        WinPrint.document.write(prtContent.innerHTML);
+        WinPrint.document.close();
+        WinPrint.focus();
+        WinPrint.print();
+        //WinPrint.close()
+    }
+
+</script>
+
+<div class="center">
+    
+        @if (Model.entries.Count() > 0)
+        {
+            <div id="divPrint">
+                <table class="table table-bordered table-responsive table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Lot Number</th>
+                            <th>Drug Used</th>
+                            <th>MRN</th>
+                            <th>Patient Name</th>
+                            <th>Provider</th>
+                            <th>Amt. Given</th>
+                            <th>Amt. Wasted</th>
+                            <th>Admin By</th>
+                            <th>Witness</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model.entries)
+                        {
+                            <tr>
+                                <td>@d.entry_date</td>
+                                <td>@d.lot_number</td>
+                                <td>@d.DrugName</td>
+                                <td>@d.patient_mrn</td>
+                                <td>@d.PatientName</td>
+                                <td>@d.provider</td>
+                                <td>@d.amt_given.ToString("G29")</td>
+                                <td>@d.amt_wasted.ToString("G29")</td>
+                                <td>@d.administered_by</td>
+                                <td>@d.witnessed_by</td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+            @Html.HiddenFor(m => m.date)
+            @Html.HiddenFor(m => m.siteID)
+        }
+        else
+        {
+            <div>
+                THERE ARE NO ENTRIES FOR THIS MONTH AT THIS SITE
+            </div>
+        }
+<div style="text-align:center">
+    <input type="button" onclick="CallPrint('divPrint')" value="Print" />
+</div>
+        
+    
+</div>

@@ -1,0 +1,44 @@
+﻿@model vmLotScreen
+@{
+    ViewBag.Title = "Add a Lot";
+}
+<div style="text-align:center;">
+    <h2>Add a Lot  </h2>
+    <p>Add a lot by filling in the information in the form below and clicking "Add".  After the lot is input, you may select it from the @Html.ActionLink("Entry/Log Screen", "Log").</p>
+    @using (Html.BeginForm("AddLot", "Home", FormMethod.Post))
+    {
+        <table class="tbl add-lot-tbl">
+            <tr>
+                <th>Lot Number:</th>
+                <th>Drug Info:</th>
+                <th>Site:</th>
+            </tr>
+            <tr>
+                <td valign="top">@Html.TextBoxFor(m => m.Lot.lot_number, null, new { @class="form-control" })</td>
+                <td valign="top">
+                    @Html.DropDownListFor(m => m.Lot.entry_code, new SelectList(
+                                    Model.MedList.Select(x => new { Value = x.EntryCode, Text = x.EntryName }),
+                                    "Value",
+                                    "Text"), "Choose...", new { @class = " form-control selectbx", @id="medlist" })
+            </td>
+            <td valign="top">
+                @Html.DropDownListFor(m => m.Lot.site_number, new SelectList(
+                                    Model.SiteList.Sites.Select(x => new { Value = x.site_number, Text = (x.site_number.ToString() + " - " + x.site_name) }),
+                                    "Value",
+                                    "Text"), "Choose...", new { @class = "form-control selectbx", })
+        </td>
+    </tr>
+</table>
+    <p></p>
+    <input type="Submit" class="btn btn-default" value="Add" />
+    <p>&nbsp;</p>
+    if (Model.LotAddSuccessful)
+    {
+        <span style="color:green">Lot Successfully Added!</span>
+    }
+
+    <span class="validation-summary">
+        @Html.ValidationSummary(false, "", new { })
+    </span>
+    }
+</div>

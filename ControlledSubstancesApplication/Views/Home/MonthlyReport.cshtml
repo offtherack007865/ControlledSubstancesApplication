@@ -1,0 +1,42 @@
+﻿@model SitesList
+@{
+    ViewBag.Title = "MonthlyReport";
+}
+@section AddToHead{
+    <style>
+        /*table {
+            border-collapse:initial;
+        }*/
+    </style>
+
+}
+<div class="center">
+    <p>To view the log for a Site, select your site below:</p>
+    @using (Html.BeginForm("Month", "Home", FormMethod.Post))
+    {
+        <table class="tbl select-lot-tbl">
+            <tr>
+                <th>Site:</th>
+                <th>Date:</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>               
+                <td valign="top">
+                    @Html.DropDownList("rzrSiteList", new SelectList(
+                   Model.Sites.Select(x => new { Value = x.site_number, Text = (x.site_number.ToString() + " - " + x.site_name) }),
+                   "Value",
+                   "Text"), new { @class = "form-control selectbx", })
+            </td>
+
+                <div>SELECT THE MONTH THAT YOU WANT A REPORT FOR:</div>
+                <th valign="top">
+                    @Html.TextBoxFor(model => model.date, new { @type = "date", @Value = Model.date.ToString("yyyy-MM-dd"), style = "width:100px" })
+                </th>
+        </tr>
+    </table>
+    <br />
+    <input type="submit" class="btn btn-default" value="Go" />
+    <p>&nbsp;</p>
+    
+}
+</div>

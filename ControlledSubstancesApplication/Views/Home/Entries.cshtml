@@ -1,0 +1,361 @@
+﻿@model vmEntryScreen
+@{
+    ViewBag.Title = "Add/View Drug Entries"; 
+}
+@using PagedList.Mvc;
+@using PagedList;
+
+@section AddToHead{
+    <style>
+        .headline{
+            line-height:32px !important;
+            font-size:18pt;
+            font-weight:500;
+        }
+        .printer {
+            background: no-repeat url(../../images/print-icon-61550_1.png) 0 0; 
+            height: 32px;
+            width: 32px;
+            overflow: hidden;
+            float: left;
+            border: none;
+            display: inline;
+        }       
+    </style>
+<script type="text/javascript">   
+    $(document).ready(function () { 
+            $(function() {
+                $("#openDateRange").on('click', function()
+                {
+                    $("#dateRange").dialog({
+                        title:  "Choose Date Range",               
+                    }).show();
+                })
+            });        
+            $("#RangeFromDate").datepicker({
+                showOn: "button",
+                buttonImage: "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif",
+                buttonImageOnly: true,
+                buttonText: "Select date",
+                maxDate: '0',
+                onSelect: function()
+                {
+                    var fromDate = $('#RangeFromDate').datepicker('getDate');
+                    var toDate = $('#RangeToDate').datepicker('getDate');
+                    if(fromDate > toDate)
+                    {
+                        $('#errorMsg').text("Start date cannot be greater than the end date")
+                        $('#filter_btn').prop('disabled', true);
+                    }
+                    else
+                    {
+                        $('#errorMsg').text("")
+                        $('#filter_btn').prop('disabled', false);
+                    }
+                }
+            });
+            $("#RangeToDate").datepicker({
+                showOn: "button",
+                buttonImage: "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif",
+                buttonImageOnly: true,
+                buttonText: "Select date",
+                maxDate: '0',
+                onSelect: function() {
+                    var fromDate = $('#RangeFromDate').datepicker('getDate');
+                    var toDate = $('#RangeToDate').datepicker('getDate');
+                    if(fromDate > toDate)
+                    {
+                        $('#errorMsg').text("Start date cannot be greater than the end date")
+                        $('#filter_btn').prop('disabled', true);
+                    }
+                    else
+                    {
+                        $('#errorMsg').text("")
+                        $('#filter_btn').prop('disabled', false);
+                    }
+                }
+            }); 
+            $('.datepicker').datepicker({
+                showOn: "both",
+                maxDate: '0',
+                buttonImage: "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif",
+                buttonImageOnly: true,
+                buttonText: "Select date"
+            });
+
+        var d = new Date();
+        var month = d.getMonth()+1;
+        var day = d.getDate();
+        var output = (month<10 ? '0' : '') + month + '/' + (day<10 ? '0' : '') + day + '/' + d.getFullYear();
+        $("#entry_date").val(output);
+    })
+    </script>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        $("#dateRange").hide();
+        var adNames = @(Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Users.strUsers)));
+        $(".AdAutocomplete").autocomplete({
+            source: adNames,
+            messages: {
+                noResults: '',
+                results: function() {}}
+        });
+    });
+</script>
+
+@*this script performs the mrn validity checking and error handling*@
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        HideAllItems();
+        $("#mrn").blur( function() {
+            HideAllItems();
+                var mrn = $("#mrn").val();
+                if(mrn.length > 0)
+                {
+                    $("#searching").show();
+                    if($.isNumeric(mrn) && mrn > 0)
+                    {
+                        GetAllScriptsInfo();
+                    }
+                    else
+                    {
+                        $("#mrn-error").show();
+                        $("#save_btn").prop("disabled",true)
+                    }   
+                }
+                else
+                {
+                    HideAllItems();
+                }            
+            });
+    });
+    function HideAllItems()
+    {
+        $("#searching").hide();
+        $("#pt-info").hide();
+        $("#mrn-error").hide()
+    }
+    function GetAllScriptsInfo()
+    {
+        $.ajax({
+            url: "GetAllscriptsInfo",
+            type: "POST",
+            data: $("#AddEntry").serialize(),
+            dataType: "json"
+        }).done(function( model ) {
+            $("#searching").hide();
+            if(model.PatientName != null)
+            {
+                $("#pt-name").text(model.PatientName);
+                $("#pt-dob").text(model.PatientDob);
+                $("#pt-info").show();
+                $("#mrn-error").hide();
+                $("#save_btn").prop("disabled",false)
+            }
+            else
+            {
+                $("#mrn-error").show();
+                $("#pt-info").hide();
+                $("#save_btn").prop("disabled",true)
+            }
+        });
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        var checkboxes = $("input[type='checkbox']");
+        checkboxes.click(function () {  
+            if(checkboxes.is(":checked"))
+            {
+                $("#updatebtn").show();
+            }
+            else
+            {
+                $("#updatebtn").hide();
+            }
+        });
+    });
+
+    </script>
+   
+    <style>
+         .ui-datepicker{
+            display:none;
+        } 
+    </style>
+}
+
+
+<span class="headline">Drug Name:  @Model.DrugName</span><br />
+<span class="headline">Lot Number: @Model.LotNumber</span><br />
+<span class="headline">Site:  @Model.Site.site_number - @Model.Site.site_name</span>
+    <hr />
+    <p class="lead">Add an entry</p>
+    <div class="new-entry">
+
+        @using (Html.BeginForm("AddEntry", "Home", FormMethod.Post, new { @id = "AddEntry" }))
+        {
+            <table class="entry-grid" style="width:100%;">
+                <tr>
+                    <th>MRN</th>
+                    <th>Date</th>
+                    <th>Provider</th>
+                    <th>Amt. Given</th>
+                    <th>Amt. Wasted</th>
+                    <th>Admin By</th>
+                    <th>Witness</th>
+                </tr>
+                <tr>                    
+                    <td valign="top">@Html.TextBoxFor(m => m.Entry.patient_mrn, new { @style = "width:100px;", @id = "mrn",@class = "form-control" })</td>  
+                    <td valign="top">@Html.TextBoxFor(m => m.Entry.given_date, new { @id = "entry_date", @class="form-control datepicker", size="11" })</td>
+
+                    @*<td>@Html.TextBoxFor(m => m.Entry.given_date, new { @id="entry_date", data_provide="datepicker", data_date_end_date="0d", size="11" })</td>*@                  
+                    @*<td><input id="entry_date" data-provide="datepicker" data-date-end-date="0d" size="11"/></td>*@
+                    <td valign="top">
+                        @Html.DropDownListFor(m => m.Entry.provider, new SelectList(
+                         Model.Users.Users.Where(x => x.is_provider == true).Select(x => new { Value = x.user_name, Text = x.user_name }),
+                         "Value",
+                         "Text"), new { @class= "form-control" })
+                </td>
+                <td valign="top">@Html.TextBoxFor(m => m.Entry.amt_given, new { @class = "form-control", @style = "width:50px;", @Value = "0" }) mg/cc</td>
+                <td valign="top">@Html.TextBoxFor(m => m.Entry.amt_wasted, new { @class = "form-control", @style = "width:50px;", @Value = "0" }) mg/cc</td>
+                <td valign="top">@Html.TextBoxFor(m => m.Entry.administered_by, new { @type = "text", @class = "form-control AdAutocomplete" })</td>
+                <td valign="top">@Html.TextBoxFor(m => m.Entry.witnessed_by, new { @type = "text", @class = "form-control AdAutocomplete" })</td>
+            </tr>
+        </table>
+        <div id="pt-info">Pt. Name:  <span id="pt-name" style="font-weight:bold"></span>&nbsp;&nbsp; | &nbsp;&nbsp; DOB:  <span id="pt-dob" style="font-weight:bold"></span></div>
+        <div id="searching"><img src="~/Images/ajax-loader.gif" />&nbsp; Searching for patient info...</div>
+        <div id="mrn-error" class="error-msg" style="display:none">ERROR:  Patient Not Found.  Make sure you have input the correct MRN.</div>
+        @Html.HiddenFor(m => m.LotId)
+            @Html.HiddenFor(m => m.LotNumber)
+            @Html.HiddenFor(m => m.Site.site_number)
+            <input type="submit" value="Save" class="btn bnt-default" style="border:1px solid #ccc; margin-top:5px;" id="save_btn" />
+            @Html.ValidationSummary(false, "", new { @style = "color:red;" })
+        }
+    </div>
+    <hr />
+    <h3>Entries</h3>
+
+    <p>
+    Date Range: <span style="font-weight:700;">@Model.FilterStartDate.Value.ToShortDateString() - @Model.FilterEndDate.Value.ToShortDateString()</span>
+    &nbsp;<a href="#" id="openDateRange" style="font-size:8pt;">(Change)</a>
+</p>
+
+<div id="dateRange" style="width:400px; height:400px;">
+    @using (Html.BeginForm("Filter", "Home", FormMethod.Post))
+    {
+            @Html.TextBoxFor(m => m.FilterStartDate, new {@class= "form-control datepicker", @id="RangeFromDate", @Value=Model.FilterStartDate.Value.ToShortDateString(), @style="width:120px; display:inline-block; margin-right:5px;" })
+            <br />
+            <span style="width:40px;">To</span>
+            <br />
+            @Html.TextBoxFor(m => m.FilterEndDate, new { @class = "form-control datepicker", @id="RangeToDate", @Value = Model.FilterEndDate.Value.ToShortDateString(), @style = "width:120px; display:inline-block; margin-right:5px;" })
+            @Html.HiddenFor(m => m.LotNumber)
+            @Html.HiddenFor(m => m.Site.site_number)
+            <br /><br />
+            <div id="errorMsg" style="color:red"></div>
+            <input type="submit" class="btn-sm" value="Go" id="filter_btn" />
+    }
+</div>
+    @if (Model.EntriesForDisplay.Count() > 0)
+    {
+        using (Html.BeginForm("UpdateEntry", "Home", FormMethod.Post))
+        {
+            @Html.HiddenFor(m => m.Site.site_number)
+            @Html.HiddenFor(m => m.LotNumber)
+            @Html.HiddenFor(m => m.CurrentPage)
+            <table class="table-striped entries-tbl">
+                <tr>
+                    <th>Date</th>
+                    <th>MRN</th>
+                    <th>Name</th>
+                    <th>Provider</th>
+                    <th>Amt. Given</th>
+                    <th>Amt. Wasted</th>
+                    <th>Admin By</th>
+                    <th>Witness</th>
+                    <th>Error</th>
+                </tr>
+                @for (int i = 0; i < Model.EntriesForDisplay.Count(); i++)
+                {
+                    @Html.HiddenFor(m => Model.EntriesForDisplay[i].id)
+                    //G29 string formatting removes trailing 0s on the decimal values
+                    <tr @((Model.EntriesForDisplay[i].is_error == true) ? "style=text-decoration:line-through" : "")>
+                        <td>@Model.EntriesForDisplay[i].given_date</td>
+                        <td>@Model.EntriesForDisplay[i].patient_mrn</td>
+                        <td>@GetPatientName(Model.EntriesForDisplay[i].patient_mrn, Model.EntriesForDisplay[i].given_date)</td>
+                        <td>@Model.EntriesForDisplay[i].provider</td>
+                        <td>@Model.EntriesForDisplay[i].amt_given.ToString("G29")</td>
+                        <td>@Model.EntriesForDisplay[i].amt_wasted.ToString("G29")</td>
+                        <td>@Model.EntriesForDisplay[i].administered_by</td>
+                        <td>@Model.EntriesForDisplay[i].witnessed_by</td>
+                        @if (!Model.EntriesForDisplay[i].is_error)
+                        {
+                            <td>@Html.CheckBoxFor(m => Model.EntriesForDisplay[i].is_error, new { @title = "Mark as entered in error", @class = "errorbx" })</td>
+                        }
+                        else
+                        {
+                            <td>&nbsp;</td>
+                        }
+                    </tr>
+                }
+            </table>
+            <input type="submit" value="Update" id="updatebtn" class="btn btn-default"style="display:none; float:right; margin-top:5px;" />
+            <br />
+            <span>Showing @Model.PagedEntriesList.FirstItemOnPage - @Model.PagedEntriesList.LastItemOnPage of @Model.AllEntriesList.Count()</span>
+            @Html.PagedListPager((IPagedList)Model.PagedEntriesList, page => Url.Action("Entries", "Home", new { page, site = Model.Site.site_number, lot = Model.LotNumber, start = Model.FilterStartDate, end = Model.FilterEndDate }))
+            <div style="width:500px; background-color:#dddddd; border:1px solid #CCC; padding:7px; float:left;">
+                <span style="font-weight:800">Print</span>  <p>Click the icon below to print the Entries list:</p>
+                <a href="@Url.Action("GeneratePdf", "Home", new { @LotId = Model.LotNumber, @SiteNumber = Model.Site.site_number, @StartDate = Model.FilterStartDate, @EndDate = Model.FilterEndDate })" class="printer"></a>
+            </div>
+            <div class="clearfix"></div>
+        }
+    }
+    else
+    {
+        <p> No entries </p>
+    }
+
+    @functions {
+        private string GetPatientName(string mrn, DateTime? givenDate)
+        {
+            if(givenDate >= Convert.ToDateTime("9/1/2020"))
+            {
+                ControlledSubstancesApplication.APIClient.APIService service = new ControlledSubstancesApplication.APIClient.APIService();
+                ControlledSubstancesApplication.Data.TsqlQuery tsqlQuery = new ControlledSubstancesApplication.Data.TsqlQuery();
+
+                var patInfo = tsqlQuery.GetPatientByID(mrn);
+
+                if (!string.IsNullOrEmpty(patInfo.FirstName) && !string.IsNullOrEmpty(patInfo.LastName))
+                {
+                    return string.Format(@"{0}, {1}", patInfo.LastName.Trim(), patInfo.FirstName.Trim());
+                }
+                else
+                {
+                    return "Cannot find Patient with that MRN.";
+                }
+                //else
+                //{
+                //    var results = service.GetPatientByMRN(mrn);
+                //    if (!string.IsNullOrEmpty(results.Firstname) && !string.IsNullOrEmpty(results.Lastname))
+                //    {
+                //        return string.Format(@"{0}, {1}", results.Lastname.Trim(), results.Firstname.Trim());
+                //    }
+                //    else
+                //    {
+                //        return "Cannot find Patient with that MRN.";
+                //    }
+                //}
+            }
+            else
+            {
+                ControlledSubstancesApplication.Unity.AllscriptsQuery Q = new ControlledSubstancesApplication.Unity.AllscriptsQuery(mrn);
+                return Q.GetPatientFullNameLastNameFirst();
+
+            }
+        }
+    }
+
+
+
+

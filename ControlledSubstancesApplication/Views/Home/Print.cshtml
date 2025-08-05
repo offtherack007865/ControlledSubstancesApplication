@@ -1,0 +1,126 @@
+﻿@model vmEntryScreen
+
+@{
+    ViewBag.Title = "Print Report - Controlled Substance Log";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body{
+        font-family:Arial;
+        font-size:11pt;
+    }
+    table{
+        border-collapse:collapse;
+    }
+    table th{
+        text-align:left;
+        border-bottom:1px solid #333;
+        padding-left:7px;
+        padding-right:7px;
+
+    }
+    table td{
+        padding-left:7px;
+        padding-right:7px;
+        padding-top:1.5px;
+        padding-bottom:1.5px;
+    }
+    h2, h3{
+        line-height:7px !important;
+    }
+
+</style>
+</head>
+<body>
+    <div style="float:left">
+        <img src="~/Images/summit-logo-website.png" />
+    </div>
+    <div style="float:left; margin-left:50px">
+        <h1>Controlled Substance Log Report</h1>
+    </div>
+    <div style="clear:both;"></div>
+    <hr/>
+<h2>Drug Name:  @Model.DrugName</h2>
+<h3>Lot Number:  @Model.LotNumber</h3>
+<h3>Site:  @Model.Site.site_number - @Model.Site.site_name</h3>
+<p>Total Entries:  @Model.AllEntriesList.Count()</p>
+<table class="table-striped entries-tbl">
+    <tr>
+        <th>Date</th>
+        <th>MRN</th>
+        <th>Name</th>
+        <th>Provider</th>
+        <th>Amt. Given</th>
+        <th>Amt. Wasted</th>
+        <th>Admin By</th>
+        <th>Witness</th>
+
+    </tr>
+    @for (int i = 0; i < Model.AllEntriesList.Count(); i++)
+    {
+        @Html.HiddenFor(m => Model.AllEntriesList[i].id)
+        //G29 string formatting removes trailing 0s on the decimal values
+
+        <tr @((Model.AllEntriesList[i].is_error == true) ? "style=text-decoration:line-through" : "")>
+            <td>@Model.AllEntriesList[i].given_date.ToString()</td>
+            @*<td>@Model.AllEntriesList[i].entry_date.ToString("M/d/yyyy h:mm tt")</td>*@
+            <td>@Model.AllEntriesList[i].patient_mrn</td>
+            <td>@GetPatientName(Model.AllEntriesList[i].patient_mrn, Model.AllEntriesList[i].given_date)</td>
+            <td>@Model.AllEntriesList[i].provider</td>
+            <td>@Model.AllEntriesList[i].amt_given.ToString("G29")</td>
+            <td>@Model.AllEntriesList[i].amt_wasted.ToString("G29")</td>
+            <td>@Model.AllEntriesList[i].administered_by</td>
+            <td>@Model.AllEntriesList[i].witnessed_by</td>
+        </tr>
+    }
+</table>
+
+    <p style="font-size:8pt;">Generated:  @DateTime.Now.ToString("d")</p>
+
+@functions {
+    private string GetPatientName(string mrn, DateTime? givenDate)
+    {
+        if (givenDate >= Convert.ToDateTime("9/1/2020"))
+        {
+            ControlledSubstancesApplication.APIClient.APIService service = new ControlledSubstancesApplication.APIClient.APIService();
+            ControlledSubstancesApplication.Data.TsqlQuery tsqlQuery = new ControlledSubstancesApplication.Data.TsqlQuery();
+
+            var patInfo = tsqlQuery.GetPatientByID(mrn);
+
+            if(!string.IsNullOrEmpty(patInfo.FirstName) && !string.IsNullOrEmpty(patInfo.LastName))
+            {
+                return string.Format(@"{0}, {1}", patInfo.LastName.Trim(), patInfo.FirstName.Trim());
+            }
+            else
+            {
+                return "Cannot find Patient with that MRN.";
+            }
+            //else
+            //{
+            //    var results = service.GetPatientByMRN(mrn);
+            //    if (!string.IsNullOrEmpty(results.Firstname) && !string.IsNullOrEmpty(results.Lastname))
+            //    {
+            //        return string.Format(@"{0}, {1}", results.Lastname.Trim(), results.Firstname.Trim());
+            //    }
+            //    else
+            //    {
+            //        return "Cannot find Patient with that MRN.";
+            //    }
+            //}
+
+        }
+        else
+        {
+            ControlledSubstancesApplication.Unity.AllscriptsQuery Q = new ControlledSubstancesApplication.Unity.AllscriptsQuery(mrn);
+            return Q.GetPatientFullNameLastNameFirst();
+
+        }
+    }
+
+}
+
+</body>
+</html>

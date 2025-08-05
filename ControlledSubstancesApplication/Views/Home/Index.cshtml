@@ -1,0 +1,37 @@
+﻿
+@{
+    ViewBag.Title = "Start";
+}
+@section AddToHead{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#footer").hide();
+        })
+    </script>
+    
+    }
+
+<div class="center">
+
+    <div style="text-align:left; background-color:#FFF; border:1px solid #808080; padding:7px;">
+        <p>This policy will streamline the process for tracking controlled substance use in your office and protect your providers DEA license.  </p>
+        <p>Enter each administration when you dispense the medication and reconcile your inventory weekly.  At the end of each month, print a copy of your monthly log and place in a designated notebook.  You will no longer be required to send copies of your log to Central.   </p>
+        <p>Please refer to the policy via the link below if you have questions.</p>
+    </div>
+    <br />
+    <div class="sss-btn">@Html.ActionLink("Administer/View Log", "Log", "Home")</div>
+    <br />
+    <div class="sss-btn">@Html.ActionLink("Add New Lot", "AddLot", "Home")</div>
+    <br />
+    <div class ="sss-btn">@Html.ActionLink("Run Monthly Report","MonthlyReport","Home")</div>
+    <p>&nbsp;</p>
+    <div style="text-align:left; background-color:#FFF; border:1px solid #808080; padding:7px;">
+        <p>Policy:  <a href="https://pulse.summithealthcare.com/central/is/development/Instructions/Controlled%20Substance%20Policy.pdf">Click Here</a></p>
+        <p>Instructions:  <a href="https://pulse.summithealthcare.com/central/is/development/Instructions/Controlled%20Substances%20Log%20-%20Instructions.pdf">Click Here</a></p>
+        <p>If you require assistance, please contact the Help Desk via (865) 212-4148 or <a href="mailto:itworkorders@summithealthcare.com">ITWorkOrders@summithealthcare.com</a></p>
+
+
+    </div>
+
+</div>
+

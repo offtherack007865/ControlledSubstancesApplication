@@ -1,0 +1,44 @@
+﻿@model SitesList
+@{
+    ViewBag.Title = "Index";
+}
+@section AddToHead{
+    <style>
+        /*table {
+            border-collapse:initial;
+        }*/
+    </style>
+    
+}
+<div class="center">
+    <p>To view the log for a drug lot, or add a new entry for a drug lot, enter the lot number and select your site below:</p>
+@using (Html.BeginForm("Entries", "Home", FormMethod.Post))
+{
+    <table class="tbl select-lot-tbl">
+        <tr>
+            <th>Lot Number:</th>
+            <th>Site:</th>
+            <th>&nbsp;</th>
+        </tr>
+        <tr>
+            <td valign="top">@Html.TextBox("rzrLotNum", null, new { @class="form-control" })</td>
+            <td valign="top">@Html.DropDownList("rzrSiteList", new SelectList(
+                                Model.Sites.Select(x => new {Value = x.site_number, Text = (x.site_number.ToString() + " - " + x.site_name) }),
+                                "Value",
+                                "Text"), new { @class = "form-control selectbx", })  </td>
+        </tr>
+    </table>
+    <br />
+    <input type="submit" class="btn btn-default" value="Go" />
+    <p>&nbsp;</p>
+    <p >
+        @if (TempData["LotNotFoundMsg"] != null)
+        {
+           {Html.RenderPartial("~/Views/Partials/log_LotNotFoundSection.cshtml");}
+        }
+    </p>
+}
+    </div>
+
+
+
