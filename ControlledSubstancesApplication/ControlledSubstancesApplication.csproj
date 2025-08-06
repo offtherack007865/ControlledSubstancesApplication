@@ -197,6 +197,12 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="App_Browsers\qt.browser" />
+    <Content Include="DocumentsForLinks\Controlled Substance Policy.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DocumentsForLinks\Controlled Substances Log - Instructions.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\PublishProfiles\CSA - TEST.pubxml" />
     <None Include="Properties\PublishProfiles\CSA Live Server.pubxml" />
     <None Include="Properties\PublishProfiles\CSA Staging.pubxml" />
