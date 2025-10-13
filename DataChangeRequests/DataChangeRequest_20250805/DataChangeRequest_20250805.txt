@@ -1,6 +1,13 @@
 -- SQL Server Instance: smg-sql01
 USE [ControlledSubstanceLog];
 
+Carver, Robin L
+Fields, Sonia D
+Burton, David R
+Minton, Tina M
+Schmidt, Kristen L
+Schmittou, Lea A
+
 
 -- 001 - Insert "Edmonds, Scottie D"s Active Directory display name
 -- into AdUsers table, allowing them the use of the 
